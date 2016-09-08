@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"webup/push"
+	"webup/push/android/fcm"
 	"webup/push/apns/sideshow"
 	"webup/push/repository/memory"
 	"webup/push/service"
@@ -28,10 +29,14 @@ func (s SendResource) Send() echo.HandlerFunc {
 			return c.String(http.StatusUnprocessableEntity, err.Error())
 		}
 
-		pusher := new(sideshow.Pusher)
-		pusher.Setup()
+		apnsPusher := new(sideshow.Pusher)
+		apnsPusher.Setup()
+		fcmPusher := new(fcm.Pusher)
+		fcmPusher.Setup()
+
 		s.SendService = service.SendService{
-			APNSPusher:      pusher,
+			APNSPusher:      apnsPusher,
+			FCMPusher:       fcmPusher,
 			TokenRepository: new(memory.TokenRepository),
 		}
 
