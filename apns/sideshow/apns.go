@@ -16,6 +16,10 @@ type Pusher struct {
 }
 
 func (p *Pusher) Setup() error {
+	if client != nil {
+		return nil
+	}
+
 	cert, pemErr := certificate.FromPemFile("../../cert.pem", "")
 	if pemErr != nil {
 		log.Println("Cert Error:", pemErr)
@@ -27,7 +31,7 @@ func (p *Pusher) Setup() error {
 	return nil
 }
 
-func (p *Pusher) Send(tokens []push.Token) error {
+func (p *Pusher) Send(notif push.Notification, tokens []push.Token) error {
 	if client == nil {
 		err := fmt.Errorf("Pusher must be initialized. You must call 'Setup()' before sending notifications")
 		log.Fatal(err)
@@ -39,7 +43,7 @@ func (p *Pusher) Send(tokens []push.Token) error {
 		notification.DeviceToken = token.Value
 		notification.Topic = "com.ymage.dressinbox"
 
-		payload := payload.NewPayload().AlertBody("youpi")
+		payload := payload.NewPayload().AlertBody(notif.Text)
 		notification.Payload = payload
 
 		res, err := client.Push(notification)
