@@ -1,6 +1,10 @@
 package http
 
-import "github.com/labstack/echo"
+import (
+	"webup/push/repository/memory"
+
+	"github.com/labstack/echo"
+)
 
 // SetupRoutes prepares the HTTP server for REST API
 func SetupRoutes() *echo.Echo {
@@ -9,9 +13,11 @@ func SetupRoutes() *echo.Echo {
 	sendResource := SendResource{}
 	e.POST("/send", sendResource.Send())
 
-	tokenResource := TokenResource{}
+	tokenResource := TokenResource{
+		Repository: new(memory.TokenRepository),
+	}
 	e.POST("/tokens", tokenResource.AddToken())
-	e.DELETE("/tokens/:token", tokenResource.RemoveToken())
+	e.DELETE("/tokens/:platform/:value", tokenResource.RemoveToken())
 
 	return e
 }

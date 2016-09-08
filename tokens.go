@@ -39,7 +39,8 @@ func (t *Token) Validate() error {
 
 // TokenRepository defines the behavior for interacting with tokens
 type TokenRepository interface {
-	FindTokenWithValue(value string) (Token, error)
-	RemoveTokenWithValue(value string) error
+	FindToken(token Token) (*Token, error)
+	GetTokensForUUID(uuid string) ([]Token, error)
+	RemoveToken(token Token) (*Token, error)
 	SaveToken(t Token) error
 }

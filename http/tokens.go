@@ -3,6 +3,7 @@ package http
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"webup/push"
 
 	"github.com/labstack/echo"
@@ -10,6 +11,7 @@ import (
 
 // TokenResource handles tokens requests
 type TokenResource struct {
+	Repository push.TokenRepository
 }
 
 // AddToken adds a token to a user
@@ -28,14 +30,53 @@ func (r *TokenResource) AddToken() echo.HandlerFunc {
 			return c.String(http.StatusUnprocessableEntity, err.Error())
 		}
 
-		return c.String(http.StatusOK, fmt.Sprintf("%+v", token))
+		err = r.Repository.SaveToken(token)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, "unable to save the token")
+		}
+
+		tokensForUUID, _ := r.Repository.GetTokensForUUID(token.UUID)
+		json := map[string]interface{}{
+			"tokens": tokensForUUID,
+		}
+
+		return c.JSON(http.StatusOK, json)
 	}
 }
 
 // RemoveToken remove a token
 func (r *TokenResource) RemoveToken() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		token := c.Param("token")
-		return c.String(http.StatusOK, "try to remove token: "+token)
+
+		rawPlatform, err := strconv.Atoi(c.Param("platform"))
+		if err != nil {
+			return c.String(http.StatusBadRequest, "platform param is not an int")
+		}
+		platform := push.Platform(rawPlatform)
+		if platform != push.IOS && platform != push.Android {
+			return c.String(http.StatusBadRequest, "platform must be 1 (iOS) or 2 (Android)")
+		}
+
+		token := push.Token{
+			Value:    c.Param("value"),
+			Platform: platform,
+		}
+
+		removedToken, err := r.Repository.RemoveToken(token)
+		if err != nil {
+			return c.String(http.StatusInternalServerError, "unable to remove the token")
+		}
+
+		if removedToken != nil {
+			tokensForUUID, _ := r.Repository.GetTokensForUUID((*removedToken).UUID)
+			json := map[string]interface{}{
+				"tokens": tokensForUUID,
+			}
+
+			return c.JSON(http.StatusOK, json)
+		}
+
+		return c.NoContent(http.StatusNotModified)
+
 	}
 }
