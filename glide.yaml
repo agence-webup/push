@@ -1,0 +1,7 @@
+package: webup/push
+import:
+- package: github.com/labstack/echo
+  version: ^2.0.2
+- package: github.com/labstack/gommon
+  subpackages:
+  - log
