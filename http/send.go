@@ -15,7 +15,7 @@ type SendResource struct {
 func (s *SendResource) Send() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		s.Pusher = new(sideshow.Pusher)
-		// s.Pusher.Setup()
+		s.Pusher.Setup()
 
 		tokens := []push.Token{
 			push.Token{
