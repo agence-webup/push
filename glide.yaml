@@ -5,3 +5,7 @@ import:
 - package: github.com/labstack/gommon
   subpackages:
   - log
+- package: github.com/sideshow/apns2
+- package: golang.org/x/crypto
+  subpackages:
+  - pkcs12
