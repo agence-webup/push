@@ -32,7 +32,7 @@ func (r *TokenResource) AddToken() echo.HandlerFunc {
 
 		err = r.Repository.SaveToken(token)
 		if err != nil {
-			return c.String(http.StatusInternalServerError, "unable to save the token")
+			return c.String(http.StatusInternalServerError, err.Error())
 		}
 
 		tokensForUUID, _ := r.Repository.GetTokensForUUID(token.UUID)

@@ -1,7 +1,7 @@
 package http
 
 import (
-	"webup/push/repository/memory"
+	"webup/push/repository/mysql"
 
 	"github.com/labstack/echo"
 )
@@ -10,11 +10,17 @@ import (
 func SetupRoutes() *echo.Echo {
 	e := echo.New()
 
-	sendResource := SendResource{}
+	// e.Use(middleware.Logger())
+
+	mysqlRepo := new(mysql.TokenRepository)
+
+	sendResource := SendResource{
+		TokenRepository: mysqlRepo,
+	}
 	e.POST("/send", sendResource.Send())
 
 	tokenResource := TokenResource{
-		Repository: new(memory.TokenRepository),
+		Repository: mysqlRepo,
 	}
 	e.POST("/tokens", tokenResource.AddToken())
 	e.DELETE("/tokens/:platform/:value", tokenResource.RemoveToken())

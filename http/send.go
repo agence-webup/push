@@ -6,14 +6,14 @@ import (
 	"webup/push"
 	"webup/push/android/fcm"
 	"webup/push/apns/sideshow"
-	"webup/push/repository/memory"
 	"webup/push/service"
 
 	"github.com/labstack/echo"
 )
 
 type SendResource struct {
-	SendService push.SendService
+	SendService     push.SendService
+	TokenRepository push.TokenRepository
 }
 
 func (s SendResource) Send() echo.HandlerFunc {
@@ -37,7 +37,7 @@ func (s SendResource) Send() echo.HandlerFunc {
 		s.SendService = service.SendService{
 			APNSPusher:      apnsPusher,
 			FCMPusher:       fcmPusher,
-			TokenRepository: new(memory.TokenRepository),
+			TokenRepository: s.TokenRepository,
 		}
 
 		s.SendService.Send(notification)
