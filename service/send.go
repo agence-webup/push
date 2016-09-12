@@ -21,18 +21,22 @@ func (s SendService) Send(notification push.Notification) error {
 
 		log.Printf("Tokens: %+v", tokens)
 
-		fcmTokens := []push.Token{}
+		go func() {
+			apnsTokens := []push.Token{}
+			fcmTokens := []push.Token{}
 
-		for _, token := range tokens {
-			if token.Platform == push.IOS {
-				s.APNSPusher.Send(notification, []push.Token{token})
-			} else if token.Platform == push.Android {
-				fcmTokens = append(fcmTokens, token)
-				// log.Println("Should send Android token ", token.Value)
+			for _, token := range tokens {
+				if token.Platform == push.IOS {
+					apnsTokens = append(apnsTokens, token)
+				} else if token.Platform == push.Android {
+					fcmTokens = append(fcmTokens, token)
+					// log.Println("Should send Android token ", token.Value)
+				}
 			}
-		}
 
-		s.FCMPusher.Send(notification, fcmTokens)
+			s.APNSPusher.Send(notification, apnsTokens)
+			s.FCMPusher.Send(notification, fcmTokens)
+		}()
 	}
 
 	return nil

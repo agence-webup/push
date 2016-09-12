@@ -46,6 +46,10 @@ func (p *Pusher) Setup() error {
 }
 
 func (p *Pusher) Send(notif push.Notification, tokens []push.Token) error {
+	if len(tokens) == 0 {
+		return nil
+	}
+
 	if client == nil {
 		err := fmt.Errorf("Pusher must be initialized. You must call 'Setup()' before sending notifications")
 		log.Fatal(err)
