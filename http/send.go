@@ -44,6 +44,6 @@ func (s SendResource) Send() echo.HandlerFunc {
 
 		s.SendService.Send(notification)
 
-		return c.String(http.StatusOK, "Tokens sent successfully")
+		return c.NoContent(http.StatusOK)
 	}
 }
