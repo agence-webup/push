@@ -18,39 +18,16 @@ const (
 )
 
 type gcmRequest struct {
-	To []string
-	// Priority     string          `json:"priority"`
-	Notification gcmNotification
-	Custom       map[string]interface{}
-}
-
-func (g gcmRequest) MarshalJSON() ([]byte, error) {
-	j := map[string]interface{}{
-		"registration_ids": g.To,
-		"priority":         "high",
-	}
-
-	if true {
-		data := map[string]interface{}{}
-		data["body"] = g.Notification.Body
-		data["title"] = g.Notification.Title
-
-		for k, v := range g.Custom {
-			data[k] = v
-		}
-
-		j["data"] = data
-	} else {
-		j["notification"] = g.Notification
-	}
-
-	data, _ := json.Marshal(j)
-	return data, nil
+	To           []string         `json:"registration_ids"`
+	Priority     string           `json:"priority"`
+	Notification *gcmNotification `json:"notification,omitempty"`
+	Data         *gcmNotification `json:"data,omitempty"`
 }
 
 type gcmNotification struct {
-	Body  string `json:"body"`
-	Title string `json:"title"`
+	Body   string                 `json:"body"`
+	Title  string                 `json:"title"`
+	Custom map[string]interface{} `json:"custom"`
 	// Icon  string
 	// Color string
 }
@@ -76,13 +53,21 @@ func (p *Pusher) Send(notif push.Notification, tokens []push.Token) error {
 	}
 
 	gcmReq := gcmRequest{
-		// Priority: "high",
-		Notification: gcmNotification{
-			Body:  notif.Text,
-			Title: notif.Title,
-			// Custom: notif.Custom,
-		},
-		// Custom: notif.Custom,
+		Priority: "high",
+	}
+
+	if len(notif.Custom) > 0 {
+		gcmReq.Data = &gcmNotification{
+			Body:   notif.Text,
+			Title:  notif.Title,
+			Custom: notif.Custom,
+		}
+	} else {
+		gcmReq.Notification = &gcmNotification{
+			Body:   notif.Text,
+			Title:  notif.Title,
+			Custom: notif.Custom,
+		}
 	}
 
 	for _, token := range tokens {

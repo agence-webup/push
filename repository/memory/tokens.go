@@ -46,7 +46,7 @@ func (r *TokenRepository) GetTokensForUUID(uuid string) ([]push.Token, error) {
 func (r *TokenRepository) RemoveToken(token push.Token) (*push.Token, error) {
 	for i, t := range r.GetTokens() {
 		if t.Value == token.Value && t.Platform == token.Platform {
-			removedToken := t
+			removedToken := r.GetTokens()[i]
 			tokens := append(r.GetTokens()[:i], r.GetTokens()[i+1:]...)
 			r.SetTokens(tokens)
 			return &removedToken, nil
