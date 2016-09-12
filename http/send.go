@@ -12,6 +12,7 @@ import (
 )
 
 type SendResource struct {
+	Config          push.RuntimeConfig
 	SendService     push.SendService
 	TokenRepository push.TokenRepository
 }
@@ -29,9 +30,10 @@ func (s SendResource) Send() echo.HandlerFunc {
 			return c.String(http.StatusUnprocessableEntity, err.Error())
 		}
 
-		apnsPusher := new(sideshow.Pusher)
+		apnsPusher := sideshow.NewPusher(*s.Config.APNS)
 		apnsPusher.Setup()
-		fcmPusher := new(fcm.Pusher)
+
+		fcmPusher := fcm.NewPusher(*s.Config.FCM)
 		fcmPusher.Setup()
 
 		s.SendService = service.SendService{

@@ -1,0 +1,19 @@
+
+storage_driver = "mysql"
+
+[mysql]
+hostname = "192.168.64.3"
+port = "9000"
+database = "db"
+username = "root"
+password = "pass"
+
+[apns]
+cert_path = "../../cert.pem"
+# cert_passphrase = "password"
+sandbox = true
+topic = "com.example.app"
+
+[fcm]
+url = "https://fcm.googleapis.com/fcm/send"
+server_key = "key"

@@ -7,28 +7,17 @@ import (
 )
 
 type TokenRepository struct {
+	Config push.RuntimeConfig
 }
 
-func init() {
-	db := GetDB()
+// func NewMySQLRepository(config push.MySQLConfig) *TokenRepository {
+// 	SetupMySQLClient(config)
 
-	creationQuery := `CREATE TABLE IF NOT EXISTS push_tokens (
-        id int(11) unsigned NOT NULL AUTO_INCREMENT,
-        uuid varchar(256) NOT NULL,
-        value varchar(1024) NOT NULL DEFAULT '',
-        platform tinyint(4) NOT NULL,
-        language varchar(6) NOT NULL DEFAULT '',
-        created_at datetime NOT NULL,
-        PRIMARY KEY (id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;`
-	_, err := db.Exec(creationQuery)
-	if err != nil {
-		log.Println("MySQL table creation error: ", err)
-	}
-}
+// 	return new(TokenRepository)
+// }
 
 func (r *TokenRepository) GetTokens() []push.Token {
-	db := GetDB()
+	db := GetDB(*r.Config.MySQL)
 	tokens := []push.Token{}
 
 	rows, err := db.Query("SELECT uuid, value, platform, language FROM `push_tokens`")
@@ -61,7 +50,7 @@ func (r *TokenRepository) SetTokens(newTokens []push.Token) {
 }
 
 func (r *TokenRepository) FindToken(token push.Token) (*push.Token, error) {
-	db := GetDB()
+	db := GetDB(*r.Config.MySQL)
 
 	foundToken := push.Token{}
 
@@ -77,7 +66,7 @@ func (r *TokenRepository) FindToken(token push.Token) (*push.Token, error) {
 }
 
 func (r *TokenRepository) GetTokensForUUID(uuid string) ([]push.Token, error) {
-	db := GetDB()
+	db := GetDB(*r.Config.MySQL)
 	tokens := []push.Token{}
 
 	rows, err := db.Query("SELECT uuid, value, platform, language FROM `push_tokens` where uuid = ?", uuid)
@@ -105,7 +94,7 @@ func (r *TokenRepository) GetTokensForUUID(uuid string) ([]push.Token, error) {
 }
 
 func (r *TokenRepository) RemoveToken(token push.Token) (*push.Token, error) {
-	db := GetDB()
+	db := GetDB(*r.Config.MySQL)
 	fmt.Printf("%+v\n", db)
 	foundToken, _ := r.FindToken(token)
 	fmt.Printf("%+v\n", foundToken)
@@ -122,6 +111,7 @@ func (r *TokenRepository) RemoveToken(token push.Token) (*push.Token, error) {
 }
 
 func (r *TokenRepository) SaveToken(t push.Token) error {
+	db := GetDB(*r.Config.MySQL)
 
 	existingToken, _ := r.FindToken(t)
 	if existingToken != nil {

@@ -13,6 +13,14 @@ import (
 var client *apns2.Client
 
 type Pusher struct {
+	Config push.APNSConfig
+}
+
+func NewPusher(config push.APNSConfig) *Pusher {
+	pusher := Pusher{
+		Config: config,
+	}
+	return &pusher
 }
 
 func (p *Pusher) Setup() error {
@@ -20,13 +28,17 @@ func (p *Pusher) Setup() error {
 		return nil
 	}
 
-	cert, pemErr := certificate.FromPemFile("../../cert.pem", "")
+	cert, pemErr := certificate.FromPemFile(p.Config.CertPath, p.Config.CertPass)
 	if pemErr != nil {
 		log.Println("Cert Error:", pemErr)
 		return pemErr
 	}
 
-	client = apns2.NewClient(cert).Development()
+	if p.Config.Sandbox {
+		client = apns2.NewClient(cert).Development()
+	} else {
+		client = apns2.NewClient(cert).Production()
+	}
 
 	return nil
 }
@@ -45,7 +57,7 @@ func (p *Pusher) Send(notif push.Notification, tokens []push.Token) error {
 	for _, token := range tokens {
 		notification := &apns2.Notification{}
 		notification.DeviceToken = token.Value
-		notification.Topic = "com.ymage.dressinbox"
+		notification.Topic = p.Config.Topic
 
 		payload := payload.NewPayload().AlertBody(notif.Text)
 		notification.Payload = payload

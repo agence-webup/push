@@ -1,6 +1,8 @@
-hash: a42373dbd667dc60b1af20ab4d607eba2b921a8fe36d2efbb67795af805ec8f6
-updated: 2016-09-12T17:08:54.615608672+02:00
+hash: c44b486e0f605e266d40bb217204f55fa79aa1c9e9c8e3b5fdbce36539e6d725
+updated: 2016-09-12T19:38:52.95356213+02:00
 imports:
+- name: github.com/BurntSushi/toml
+  version: 99064174e013895bbd9b025c31100bd1d9b590ca
 - name: github.com/dgrijalva/jwt-go
   version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
 - name: github.com/go-sql-driver/mysql
@@ -11,11 +13,9 @@ imports:
   - engine
   - engine/standard
   - log
-  - middleware
 - name: github.com/labstack/gommon
   version: 431777a5117c8de4352a400dad1e2a55f484b189
   subpackages:
-  - bytes
   - color
   - log
 - name: github.com/mattn/go-colorable

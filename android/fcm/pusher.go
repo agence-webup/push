@@ -12,11 +12,6 @@ import (
 
 var client *http.Client
 
-const (
-	fcmURL    = "https://fcm.googleapis.com/fcm/send"
-	serverKey = "AIzaSyCydSplZbeh2LkB_YUc0L91tRKYRU8IbvQ"
-)
-
 type gcmRequest struct {
 	To           []string         `json:"registration_ids"`
 	Priority     string           `json:"priority"`
@@ -33,6 +28,14 @@ type gcmNotification struct {
 }
 
 type Pusher struct {
+	Config push.FCMConfig
+}
+
+func NewPusher(config push.FCMConfig) *Pusher {
+	pusher := Pusher{
+		Config: config,
+	}
+	return &pusher
 }
 
 func (p *Pusher) Setup() error {
@@ -90,11 +93,11 @@ func (p *Pusher) Send(notif push.Notification, tokens []push.Token) error {
 func (p *Pusher) makeRequest(request gcmRequest) error {
 	data, _ := json.Marshal(request)
 	fmt.Printf("%+v", string(data))
-	req, err := http.NewRequest("POST", fcmURL, bytes.NewBuffer(data))
+	req, err := http.NewRequest("POST", p.Config.URL, bytes.NewBuffer(data))
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Authorization", "key="+serverKey)
+	req.Header.Set("Authorization", "key="+p.Config.ServerKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := (*client).Do(req)
