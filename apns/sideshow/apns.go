@@ -50,7 +50,7 @@ func (p *Pusher) Send(notif push.Notification, tokens []push.Token) error {
 
 	if client == nil {
 		err := fmt.Errorf("Pusher must be initialized. You must call 'Setup()' before sending notifications")
-		log.Fatal(err)
+		log.Println(err)
 		return err
 	}
 
@@ -65,7 +65,7 @@ func (p *Pusher) Send(notif push.Notification, tokens []push.Token) error {
 		res, err := client.Push(notification)
 
 		if err != nil {
-			log.Println("Error:", err)
+			log.Println("APNs Error:", err)
 			return err
 		}
 

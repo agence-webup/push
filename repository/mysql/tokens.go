@@ -10,12 +10,6 @@ type TokenRepository struct {
 	Config push.RuntimeConfig
 }
 
-// func NewMySQLRepository(config push.MySQLConfig) *TokenRepository {
-// 	SetupMySQLClient(config)
-
-// 	return new(TokenRepository)
-// }
-
 func (r *TokenRepository) GetTokens() []push.Token {
 	db := GetDB(*r.Config.MySQL)
 	tokens := []push.Token{}
@@ -77,7 +71,6 @@ func (r *TokenRepository) GetTokensForUUID(uuid string) ([]push.Token, error) {
 
 	for rows.Next() {
 		token := push.Token{}
-		fmt.Println("Found token: ", token)
 		err := rows.Scan(&token.UUID, &token.Value, &token.Platform, &token.Language)
 		if err != nil {
 			log.Println("Unable to bind MySQL row to a Token: ", err)
@@ -95,9 +88,8 @@ func (r *TokenRepository) GetTokensForUUID(uuid string) ([]push.Token, error) {
 
 func (r *TokenRepository) RemoveToken(token push.Token) (*push.Token, error) {
 	db := GetDB(*r.Config.MySQL)
-	fmt.Printf("%+v\n", db)
+
 	foundToken, _ := r.FindToken(token)
-	fmt.Printf("%+v\n", foundToken)
 	if foundToken == nil {
 		return nil, nil
 	}

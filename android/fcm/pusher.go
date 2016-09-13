@@ -55,7 +55,7 @@ func (p *Pusher) Send(notif push.Notification, tokens []push.Token) error {
 
 	if client == nil {
 		err := fmt.Errorf("Pusher must be initialized. You must call 'Setup()' before sending notifications")
-		log.Fatal(err)
+		log.Println(err)
 		return err
 	}
 
@@ -92,7 +92,6 @@ func (p *Pusher) Send(notif push.Notification, tokens []push.Token) error {
 
 func (p *Pusher) makeRequest(request gcmRequest) error {
 	data, _ := json.Marshal(request)
-	fmt.Printf("%+v", string(data))
 	req, err := http.NewRequest("POST", p.Config.URL, bytes.NewBuffer(data))
 	if err != nil {
 		return err
@@ -106,10 +105,10 @@ func (p *Pusher) makeRequest(request gcmRequest) error {
 	}
 	defer resp.Body.Close()
 
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
+	log.Println("FCM status:", resp.Status)
+	// fmt.Println("response Headers:", resp.Header)
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
+	log.Println("FCM response:", string(body))
 
 	return nil
 }

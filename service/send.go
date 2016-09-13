@@ -13,13 +13,15 @@ type SendService struct {
 
 func (s SendService) Send(notification push.Notification) error {
 
+	log.Println("Send request received: preparing tokens...")
+
 	for _, uuid := range notification.UUIDs {
 		tokens, err := s.TokenRepository.GetTokensForUUID(uuid)
 		if err != nil {
 			return err
 		}
 
-		log.Printf("Tokens: %+v", tokens)
+		log.Printf("  => %d tokens for %v\n", len(tokens), uuid)
 
 		go func() {
 			apnsTokens := []push.Token{}
