@@ -60,6 +60,9 @@ func (p *Pusher) Send(notif push.Notification, tokens []push.Token) error {
 		notification.Topic = p.Config.Topic
 
 		payload := payload.NewPayload().AlertBody(notif.Text)
+		if len(notif.Custom) > 0 {
+			payload = payload.Custom("custom", notif.Custom)
+		}
 		notification.Payload = payload
 
 		res, err := client.Push(notification)
