@@ -1,8 +1,9 @@
 package service
 
 import (
-	"log"
 	"webup/push"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 type SendService struct {
@@ -13,7 +14,10 @@ type SendService struct {
 
 func (s SendService) Send(notification push.Notification) error {
 
-	log.Println("Send request received: preparing tokens...")
+	log.Infoln("Send request received: preparing tokens...")
+
+	apnsTokens := []push.Token{}
+	fcmTokens := []push.Token{}
 
 	for _, uuid := range notification.UUIDs {
 		tokens, err := s.TokenRepository.GetTokensForUUID(uuid)
@@ -21,25 +25,41 @@ func (s SendService) Send(notification push.Notification) error {
 			return err
 		}
 
-		log.Printf("  => %d tokens for %v\n", len(tokens), uuid)
-
-		go func() {
-			apnsTokens := []push.Token{}
-			fcmTokens := []push.Token{}
-
-			for _, token := range tokens {
-				if token.Platform == push.IOS {
-					apnsTokens = append(apnsTokens, token)
-				} else if token.Platform == push.Android {
-					fcmTokens = append(fcmTokens, token)
-					// log.Println("Should send Android token ", token.Value)
-				}
+		for _, token := range tokens {
+			if token.Platform == push.IOS {
+				apnsTokens = append(apnsTokens, token)
+			} else if token.Platform == push.Android {
+				fcmTokens = append(fcmTokens, token)
 			}
-
-			s.APNSPusher.Send(notification, apnsTokens)
-			s.FCMPusher.Send(notification, fcmTokens)
-		}()
+		}
 	}
+
+	log.WithFields(log.Fields{"count": len(apnsTokens)}).Infoln("APNs tokens to send.")
+	log.WithFields(log.Fields{"count": len(fcmTokens)}).Infoln("FCM tokens to send.")
+
+	go func() {
+		// APNs
+		apnsResponse, err := s.APNSPusher.Send(notification, apnsTokens)
+		if err != nil {
+			log.Println(err)
+		}
+
+		// FCM
+		fcmResponse, err := s.FCMPusher.Send(notification, fcmTokens)
+		if err != nil {
+			log.Println(err)
+		}
+
+		// clean invalid tokens
+		log.WithFields(log.Fields{"count": len(apnsResponse.InvalidTokens)}).Infoln("APNs invalid tokens found.")
+		for _, token := range apnsResponse.InvalidTokens {
+			s.TokenRepository.RemoveToken(token)
+		}
+		log.WithFields(log.Fields{"count": len(fcmResponse.InvalidTokens)}).Infoln("FCM invalid tokens found.")
+		for _, token := range fcmResponse.InvalidTokens {
+			s.TokenRepository.RemoveToken(token)
+		}
+	}()
 
 	return nil
 }

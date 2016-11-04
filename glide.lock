@@ -1,5 +1,5 @@
-hash: c44b486e0f605e266d40bb217204f55fa79aa1c9e9c8e3b5fdbce36539e6d725
-updated: 2016-09-12T19:38:52.95356213+02:00
+hash: e96f710b59329b91d4712ae8f7430fca27df0b58e5d3cf41276c7fcb04abe75b
+updated: 2016-10-24T14:11:18.821355+02:00
 imports:
 - name: github.com/BurntSushi/toml
   version: 99064174e013895bbd9b025c31100bd1d9b590ca
@@ -8,8 +8,9 @@ imports:
 - name: github.com/go-sql-driver/mysql
   version: 0b58b37b664c21f3010e836f1b931e1d0b0b0685
 - name: github.com/labstack/echo
-  version: fbcdf70c52c155ae9aa58e72ee0532fa2f1cad2e
+  version: 04e6901d05b58ddbae579a6252a3d1bb3f334adc
   subpackages:
+  - context
   - engine
   - engine/standard
   - log
@@ -27,10 +28,12 @@ imports:
   subpackages:
   - certificate
   - payload
+- name: github.com/Sirupsen/logrus
+  version: 4b6ea7319e214d98c938f12692336f7ca9348d6b
 - name: github.com/valyala/fasttemplate
   version: 3b874956e03f1636d171bda64b130f9135f42cff
 - name: golang.org/x/crypto
-  version: 2f6fccd33b9b1fc23ebb73ad4890698820f7174d
+  version: 3c0d69f1777220f1a1d2ec373cb94a282f03eb42
   subpackages:
   - pkcs12
   - pkcs12/internal/rc2

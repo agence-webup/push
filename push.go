@@ -4,7 +4,7 @@ import "fmt"
 
 type Pusher interface {
 	Setup() error
-	Send(notification Notification, tokens []Token) error
+	Send(notification Notification, tokens []Token) (SendResponse, error)
 }
 
 type Notification struct {
@@ -12,6 +12,10 @@ type Notification struct {
 	Title  string                 `json:"title"`
 	Text   string                 `json:"text"`
 	Custom map[string]interface{} `json:"custom"`
+}
+
+type SendResponse struct {
+	InvalidTokens []Token
 }
 
 func (n Notification) Validate() error {

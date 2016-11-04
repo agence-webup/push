@@ -2,9 +2,9 @@ package sideshow
 
 import (
 	"fmt"
-	"log"
 	"webup/push"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/sideshow/apns2"
 	"github.com/sideshow/apns2/certificate"
 	"github.com/sideshow/apns2/payload"
@@ -30,7 +30,7 @@ func (p *Pusher) Setup() error {
 
 	cert, pemErr := certificate.FromPemFile(p.Config.CertPath, p.Config.CertPass)
 	if pemErr != nil {
-		log.Println("Cert Error:", pemErr)
+		log.WithFields(log.Fields{"error": pemErr}).Errorln("APNs certificate error")
 		return pemErr
 	}
 
@@ -43,16 +43,18 @@ func (p *Pusher) Setup() error {
 	return nil
 }
 
-func (p *Pusher) Send(notif push.Notification, tokens []push.Token) error {
+func (p *Pusher) Send(notif push.Notification, tokens []push.Token) (push.SendResponse, error) {
 	if len(tokens) == 0 {
-		return nil
+		return push.SendResponse{}, nil
 	}
 
 	if client == nil {
 		err := fmt.Errorf("Pusher must be initialized. You must call 'Setup()' before sending notifications")
-		log.Println(err)
-		return err
+		log.WithFields(log.Fields{"error": err}).Errorln("APNs Pusher not initialized")
+		return push.SendResponse{}, err
 	}
+
+	invalidTokens := []push.Token{}
 
 	for _, token := range tokens {
 		notification := &apns2.Notification{}
@@ -68,12 +70,16 @@ func (p *Pusher) Send(notif push.Notification, tokens []push.Token) error {
 		res, err := client.Push(notification)
 
 		if err != nil {
-			log.Println("APNs Error:", err)
-			return err
+			if res.Reason == apns2.ReasonDeviceTokenNotForTopic || res.Reason == apns2.ReasonUnregistered {
+				invalidTokens = append(invalidTokens, token)
+			}
+
+			log.WithFields(log.Fields{"error": err, "id": res.ApnsID}).Errorln("APNs not sent")
+			continue
 		}
 
-		log.Println("APNs ID:", res.ApnsID)
+		log.WithFields(log.Fields{"id": res.ApnsID}).Debugln("APNs sent successfully")
 	}
 
-	return nil
+	return push.SendResponse{InvalidTokens: invalidTokens}, nil
 }
