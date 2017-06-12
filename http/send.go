@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"webup/push"
-	"webup/push/android/fcm"
-	"webup/push/apns/sideshow"
 	"webup/push/service"
 
 	"github.com/labstack/echo"
@@ -30,19 +28,8 @@ func (s SendResource) Send() echo.HandlerFunc {
 			return c.String(http.StatusUnprocessableEntity, err.Error())
 		}
 
-		apnsPusher := sideshow.NewPusher(*s.Config.APNS)
-		apnsPusher.Setup()
-
-		fcmPusher := fcm.NewPusher(*s.Config.FCM)
-		fcmPusher.Setup()
-
-		s.SendService = service.SendService{
-			APNSPusher:      apnsPusher,
-			FCMPusher:       fcmPusher,
-			TokenRepository: s.TokenRepository,
-		}
-
-		s.SendService.Send(notification)
+		s := service.Get(s.Config, s.TokenRepository)
+		s.Send(notification)
 
 		return c.NoContent(http.StatusOK)
 	}

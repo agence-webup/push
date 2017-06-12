@@ -44,3 +44,30 @@ type TokenRepository interface {
 	RemoveToken(token Token) (*Token, error)
 	SaveToken(t Token) error
 }
+
+// TokenBag stores a token list
+type TokenBag struct {
+	Tokens []Token
+}
+
+func (b *TokenBag) AddToken(token Token) error {
+	if b.Tokens == nil {
+		b.Tokens = []Token{}
+	}
+
+	b.Tokens = append(b.Tokens, token)
+	return nil
+}
+
+func (b *TokenBag) GetTokens() []Token {
+	if b.Tokens == nil {
+		return []Token{}
+	}
+
+	return b.Tokens
+}
+
+func (b *TokenBag) ResetTokens() error {
+	b.Tokens = []Token{}
+	return nil
+}

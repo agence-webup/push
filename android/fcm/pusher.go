@@ -41,18 +41,19 @@ type gcmResult struct {
 	Error string `json:"error"`
 }
 
-type Pusher struct {
+type manager struct {
 	Config push.FCMConfig
+	push.TokenBag
 }
 
-func NewPusher(config push.FCMConfig) *Pusher {
-	pusher := Pusher{
+func NewPushManager(config push.FCMConfig) push.Pusher {
+	manager := manager{
 		Config: config,
 	}
-	return &pusher
+	return &manager
 }
 
-func (p *Pusher) Setup() error {
+func (p *manager) Setup() error {
 	if client != nil {
 		return nil
 	}
@@ -62,10 +63,14 @@ func (p *Pusher) Setup() error {
 	return nil
 }
 
-func (p *Pusher) Send(notif push.Notification, tokens []push.Token) (push.SendResponse, error) {
+func (p *manager) Send(notif push.Notification) (push.SendResponse, error) {
+	tokens := p.GetTokens()
+
 	if len(tokens) == 0 {
 		return push.SendResponse{}, nil
 	}
+
+	defer p.ResetTokens()
 
 	if client == nil {
 		err := fmt.Errorf("Pusher must be initialized. You must call 'Setup()' before sending notifications")
@@ -132,7 +137,7 @@ func (p *Pusher) Send(notif push.Notification, tokens []push.Token) (push.SendRe
 	return sendResponse, nil
 }
 
-func (p *Pusher) makeRequest(request gcmRequest) (gcmResponse, error) {
+func (p *manager) makeRequest(request gcmRequest) (gcmResponse, error) {
 	data, _ := json.Marshal(request)
 	req, err := http.NewRequest("POST", p.Config.URL, bytes.NewBuffer(data))
 	if err != nil {

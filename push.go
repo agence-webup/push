@@ -4,8 +4,13 @@ import "fmt"
 
 type Pusher interface {
 	Setup() error
-	Send(notification Notification, tokens []Token) (SendResponse, error)
+	AddToken(token Token) error
+	GetTokens() []Token
+	ResetTokens() error
+	Send(notification Notification) (SendResponse, error)
 }
+
+type PushManagerByPlatform map[Platform]Pusher
 
 type Notification struct {
 	UUIDs  []string               `json:"uuids"`

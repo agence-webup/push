@@ -12,18 +12,20 @@ import (
 
 var client *apns2.Client
 
-type Pusher struct {
+type manager struct {
 	Config push.APNSConfig
+	push.TokenBag
 }
 
-func NewPusher(config push.APNSConfig) *Pusher {
-	pusher := Pusher{
+func NewPushManager(config push.APNSConfig) push.Pusher {
+	manager := manager{
 		Config: config,
+		// Tokens: []push.Token{},
 	}
-	return &pusher
+	return &manager
 }
 
-func (p *Pusher) Setup() error {
+func (p *manager) Setup() error {
 	if client != nil {
 		return nil
 	}
@@ -43,10 +45,14 @@ func (p *Pusher) Setup() error {
 	return nil
 }
 
-func (p *Pusher) Send(notif push.Notification, tokens []push.Token) (push.SendResponse, error) {
+func (p *manager) Send(notif push.Notification) (push.SendResponse, error) {
+	tokens := p.GetTokens()
+
 	if len(tokens) == 0 {
 		return push.SendResponse{}, nil
 	}
+
+	defer p.ResetTokens()
 
 	if client == nil {
 		err := fmt.Errorf("Pusher must be initialized. You must call 'Setup()' before sending notifications")
