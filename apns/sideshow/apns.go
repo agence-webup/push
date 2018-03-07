@@ -8,6 +8,7 @@ import (
 	"github.com/sideshow/apns2"
 	"github.com/sideshow/apns2/certificate"
 	"github.com/sideshow/apns2/payload"
+	"github.com/sideshow/apns2/token"
 )
 
 var client *apns2.Client
@@ -30,16 +31,35 @@ func (p *manager) Setup() error {
 		return nil
 	}
 
-	cert, pemErr := certificate.FromPemFile(p.Config.CertPath, p.Config.CertPass)
-	if pemErr != nil {
-		log.WithFields(log.Fields{"error": pemErr}).Errorln("APNs certificate error")
-		return pemErr
+	// try to get config with JWT p8 file
+	jwtConfigFound := true
+	authKey, err := token.AuthKeyFromFile(p.Config.JWTPath)
+	if err != nil {
+		jwtConfigFound = false
 	}
 
-	if p.Config.Sandbox {
-		client = apns2.NewClient(cert).Development()
+	if jwtConfigFound {
+		token := &token.Token{
+			AuthKey: authKey,
+			// KeyID from developer account (Certificates, Identifiers & Profiles -> Keys)
+			KeyID: p.Config.JWTKeyID,
+			// TeamID from developer account (View Account -> Membership)
+			TeamID: p.Config.JWTTeamID,
+		}
+
+		client = apns2.NewTokenClient(token)
 	} else {
-		client = apns2.NewClient(cert).Production()
+		cert, pemErr := certificate.FromPemFile(p.Config.CertPath, p.Config.CertPass)
+		if pemErr != nil {
+			log.WithFields(log.Fields{"error": pemErr}).Errorln("APNs certificate error")
+			return pemErr
+		}
+
+		if p.Config.Sandbox {
+			client = apns2.NewClient(cert).Development()
+		} else {
+			client = apns2.NewClient(cert).Production()
+		}
 	}
 
 	return nil
