@@ -24,6 +24,6 @@ func main() {
 	// clean MySQL connection
 	defer mysql.Close()
 
-	fmt.Println("Listening on http://localhost:3000")
+	fmt.Println("Listening on :3000")
 	e.Run(standard.New(":3000"))
 }
