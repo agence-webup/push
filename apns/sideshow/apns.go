@@ -47,7 +47,11 @@ func (p *manager) Setup() error {
 			TeamID: p.Config.JWTTeamID,
 		}
 
-		client = apns2.NewTokenClient(token)
+		if p.Config.Sandbox {
+			client = apns2.NewTokenClient(token).Development()
+		} else {
+			client = apns2.NewTokenClient(token).Production()
+		}
 	} else {
 		cert, pemErr := certificate.FromPemFile(p.Config.CertPath, p.Config.CertPass)
 		if pemErr != nil {

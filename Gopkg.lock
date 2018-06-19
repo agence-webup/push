@@ -25,13 +25,22 @@
 
 [[projects]]
   name = "github.com/labstack/echo"
-  packages = [".","context","engine","engine/standard","log"]
+  packages = [
+    ".",
+    "context",
+    "engine",
+    "engine/standard",
+    "log"
+  ]
   revision = "04e6901d05b58ddbae579a6252a3d1bb3f334adc"
   version = "v2.1"
 
 [[projects]]
   name = "github.com/labstack/gommon"
-  packages = ["color","log"]
+  packages = [
+    "color",
+    "log"
+  ]
   revision = "431777a5117c8de4352a400dad1e2a55f484b189"
 
 [[projects]]
@@ -47,7 +56,12 @@
 
 [[projects]]
   name = "github.com/sideshow/apns2"
-  packages = [".","certificate","payload","token"]
+  packages = [
+    ".",
+    "certificate",
+    "payload",
+    "token"
+  ]
   revision = "df275e5c35d2814db5013184c3fe18a33439eaa3"
   version = "v0.14"
 
@@ -58,12 +72,21 @@
 
 [[projects]]
   name = "golang.org/x/crypto"
-  packages = ["pkcs12","pkcs12/internal/rc2"]
+  packages = [
+    "pkcs12",
+    "pkcs12/internal/rc2"
+  ]
   revision = "3c0d69f1777220f1a1d2ec373cb94a282f03eb42"
 
 [[projects]]
   name = "golang.org/x/net"
-  packages = ["context","context/ctxhttp","http2","http2/hpack","lex/httplex"]
+  packages = [
+    "context",
+    "context/ctxhttp",
+    "http2",
+    "http2/hpack",
+    "lex/httplex"
+  ]
   revision = "9313baa13d9262e49d07b20ed57dceafcd7240cc"
 
 [[projects]]
@@ -74,6 +97,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "72a969570080e329af0606c90888d169a9673597d482dc3e00ae7c0f8e796e6a"
+  inputs-digest = "e30d8307c5a9a51dd57aebe7b42456ce751109160e30417120c7f2411174223b"
   solver-name = "gps-cdcl"
   solver-version = 1
