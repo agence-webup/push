@@ -1,19 +1,19 @@
-FROM golang:1.7.1-alpine
+FROM golang:1.12.9-alpine as builder
 
-RUN apk add --no-cache git
+ENV USER root
+WORKDIR /root/src
 
-ADD https://github.com/Masterminds/glide/releases/download/v0.12.1/glide-v0.12.1-linux-amd64.tar.gz /glide.tar.gz
-RUN mkdir /glide-bin
-RUN tar xzf /glide.tar.gz -C /glide-bin
+RUN apk --no-cache add make git
 
-RUN mkdir -p /go/src/webup/push
-WORKDIR /go/src/webup/push
+ADD . /root/src
 
-COPY . /go/src/webup/push
+RUN make build
 
-RUN /glide-bin/linux-amd64/glide install
-RUN cd /go/src/webup/push/cmd/push && go install -v
 
-CMD /go/bin/push
+FROM alpine:3.10
+COPY --from=builder /root/src/push_linux_amd64 /usr/local/bin/pushapi
+RUN chmod +x /usr/local/bin/pushapi
 
+ENV CONFIG_FILEPATH config.toml
 EXPOSE 3000
+CMD ["pushapi"]
