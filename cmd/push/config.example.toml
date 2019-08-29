@@ -8,6 +8,14 @@ database = "db"
 username = "root"
 password = "pass"
 
+[postgres]
+hostname = "127.0.0.1"
+port = "5432"
+database = "db"
+username = "postgres"
+password = "pass"
+prefix = "pushapi_"
+
 [apns]
 cert_path = "../../cert.pem"
 # cert_passphrase = "password"

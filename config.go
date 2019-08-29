@@ -3,13 +3,15 @@ package push
 type StorageDriver string
 
 const (
-	MySQLStorageDriver  StorageDriver = "mysql"
-	MemoryStorageDriver StorageDriver = "memory"
+	MySQLStorageDriver    StorageDriver = "mysql"
+	PostgresStorageDriver StorageDriver = "postgres"
+	MemoryStorageDriver   StorageDriver = "memory"
 )
 
 type RuntimeConfig struct {
 	StorageDriver StorageDriver `toml:"storage_driver"`
 	MySQL         *MySQLConfig
+	Postgres      *PostgresConfig
 	APNS          *APNSConfig
 	FCM           *FCMConfig
 }
@@ -20,6 +22,15 @@ type MySQLConfig struct {
 	Database string
 	Username string
 	Password string
+}
+
+type PostgresConfig struct {
+	Hostname string
+	Port     string
+	Database string
+	Username string
+	Password string
+	Prefix   string
 }
 
 type APNSConfig struct {

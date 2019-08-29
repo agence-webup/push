@@ -2,27 +2,15 @@ package http
 
 import (
 	"webup/push"
-	"webup/push/repository/memory"
-	"webup/push/repository/mysql"
 
 	"github.com/labstack/echo"
 )
 
 // SetupRoutes prepares the HTTP server for REST API
-func SetupRoutes(config push.RuntimeConfig) *echo.Echo {
+func SetupRoutes(config push.RuntimeConfig, repo push.TokenRepository) *echo.Echo {
 	e := echo.New()
 
 	// e.Use(middleware.Logger())
-
-	// prepare Token Repository according to config
-	var repo push.TokenRepository
-	if config.StorageDriver == push.MySQLStorageDriver {
-		repo = &mysql.TokenRepository{
-			Config: config,
-		}
-	} else {
-		repo = new(memory.TokenRepository)
-	}
 
 	// -> /send handler
 	sendResource := SendResource{
