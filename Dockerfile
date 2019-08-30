@@ -14,6 +14,8 @@ FROM alpine:3.10
 COPY --from=builder /root/src/push_linux_amd64 /usr/local/bin/pushapi
 RUN chmod +x /usr/local/bin/pushapi
 
+RUN apk --no-cache add ca-certificates
+
 ENV CONFIG_FILEPATH config.toml
 EXPOSE 3000
 CMD ["pushapi"]
