@@ -23,6 +23,7 @@ func SetupRoutes(config push.RuntimeConfig, repo push.TokenRepository) *echo.Ech
 	tokenResource := TokenResource{
 		Repository: repo,
 	}
+	e.GET("/tokens/:uuid", tokenResource.GetTokens())
 	e.POST("/tokens", tokenResource.AddToken())
 	e.DELETE("/tokens/:platform/:value", tokenResource.RemoveToken())
 
