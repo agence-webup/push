@@ -88,14 +88,14 @@ func (p *manager) Send(notif push.Notification) (push.SendResponse, error) {
 			Priority: "high",
 		}
 
+		gcmReq.Notification = &gcmNotification{
+			Body:   notif.Text,
+			Title:  notif.Title,
+			Custom: notif.Custom,
+		}
+
 		if len(notif.Custom) > 0 {
 			gcmReq.Data = &gcmNotification{
-				Body:   notif.Text,
-				Title:  notif.Title,
-				Custom: notif.Custom,
-			}
-		} else {
-			gcmReq.Notification = &gcmNotification{
 				Body:   notif.Text,
 				Title:  notif.Title,
 				Custom: notif.Custom,
